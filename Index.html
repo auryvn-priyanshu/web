@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resonance — For Ria</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,900;1,400&family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0c0b0a;
+            --paper: #fffaf0;
+            --accent: #f8d7da;
+            --accent-dark: #eec1c5;
+            --text-dim: #8e7f77;
+            --text-deep: #2a2420;
+            --glass: rgba(255, 250, 240, 0.85);
+            --gold-soft: rgba(212, 175, 55, 0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-deep);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            height: 100vh;
+        }
+
+        /* High-End Particle Background */
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: radial-gradient(circle at center, #1a1817 0%, #0c0b0a 100%);
+        }
+
+        /* Cinematic Intro */
+        #stage-intro {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: transform 1.5s cubic-bezier(0.85, 0, 0.15, 1), opacity 1.5s;
+            padding: 2rem;
+        }
+
+        .intro-gate {
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .line {
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .line span {
+            display: block;
+            color: var(--paper);
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            opacity: 0;
+            transform: translateY(100%);
+            animation: revealText 1.2s forwards;
+        }
+
+        .line:nth-child(2) span { animation-delay: 0.4s; }
+        .line:nth-child(3) span { animation-delay: 0.8s; }
+
+        @keyframes revealText {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .gate-btn {
+            margin-top: 3rem;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 1rem 2.5rem;
+            color: var(--paper);
+            font-size: 0.8rem;
+            letter-spacing: 0.3em;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 1px;
+            opacity: 0;
+            animation: fadeIn 1s forwards 1.8s;
+        }
+
+        .gate-btn:hover {
+            background: var(--paper);
+            color: var(--bg);
+            border-color: var(--paper);
+            box-shadow: 0 0 30px rgba(255,250,240,0.2);
+        }
+
+        /* Main Shell */
+        #main-shell {
+            position: relative;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 2s;
+            height: 100vh;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .scroll-container {
+            padding: 0 5vw;
+        }
+
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 10vh 0;
+        }
+
+        /* Modern Typography & Layout */
+        .section-header {
+            margin-bottom: 4rem;
+            text-align: center;
+        }
+
+        .section-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 8vw, 4rem);
+            font-weight: 200;
+            color: var(--accent);
+            font-style: italic;
+        }
+
+        .section-header .subtitle {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5em;
+            color: var(--text-dim);
+            margin-top: 1rem;
+        }
+
+        /* Appreciation Cards */
+        .grid-appreciation {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 4px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .glass-card p {
+            font-size: 1.05rem;
+            color: var(--text-deep);
+            font-weight: 300;
+        }
+
+        /* Digital Vault */
+        .vault-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 6rem;
+            align-items: center;
+        }
+
+        .poem-artifact {
+            width: 100%;
+            max-width: 700px;
+            position: relative;
+            padding: 4rem;
+            background: var(--paper);
+            box-shadow: 0 10px 50px rgba(0,0,0,0.2);
+        }
+
+        .poem-artifact::before {
+            content: '';
+            position: absolute;
+            top: 10px; left: 10px; right: 10px; bottom: 10px;
+            border: 1px solid var(--accent);
+            pointer-events: none;
+        }
+
+        .poem-meta {
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+
+        .poem-body {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            line-height: 1.8;
+            white-space: pre-line;
+            color: var(--text-deep);
+        }
+
+        .poem-sig {
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            font-style: italic;
+            text-align: right;
+            color: var(--text-dim);
+        }
+
+        /* Featured Poem */
+        .quantum-poem {
+            background: var(--bg);
+            color: var(--paper);
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 40px rgba(248, 215, 218, 0.1);
+        }
+
+        .quantum-poem .poem-body { color: var(--paper); }
+        .quantum-poem .poem-meta { color: var(--accent); }
+
+        /* Future Section */
+        .blessing-box {
+            background: var(--paper);
+            padding: 6rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blessing-box h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Footer Overlay */
+        #curtain-final {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            padding: 2rem;
+        }
+
+        .final-msg {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.2rem, 4vw, 2rem);
+            line-height: 1.6;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* Audio Control */
+        .audio-widget {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 5000;
+            mix-blend-mode: difference;
+        }
+
+        .audio-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        @media (max-width: 768px) {
+            .poem-artifact { padding: 2rem 1.5rem; }
+            .glass-card { padding: 2rem; }
+            .section-header h2 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <!-- Introductory Stage -->
+    <div id="stage-intro">
+        <div class="intro-gate">
+            <div class="line"><span>This is not a proposal.</span></div>
+            <div class="line"><span>This is just appreciation.</span></div>
+            <div class="line"><span>And you deserve that.</span></div>
+            <button class="gate-btn" onclick="liftCurtain()">ENTER THE ARCHIVE</button>
+        </div>
+    </div>
+
+    <!-- Audio Control -->
+    <div class="audio-widget">
+        <button class="audio-btn" onclick="toggleAudio()">
+            <span id="audio-status">AUDIO OFF</span>
+            <div id="visualizer" style="display:flex; gap:2px; height:12px; align-items:flex-end;">
+                <div style="width:2px; height:60%; background:currentColor;"></div>
+                <div style="width:2px; height:100%; background:currentColor;"></div>
+                <div style="width:2px; height:40%; background:currentColor;"></div>
+            </div>
+        </button>
+    </div>
+    <audio id="ambient" loop src="https://www.chosic.com/wp-content/uploads/2021/07/Slow-Piano-Music.mp3"></audio>
+
+    <!-- Main Experience Shell -->
+    <div id="main-shell">
+        <div class="scroll-container">
+            
+            <section id="appreciation">
+                <div class="section-header">
+                    <div class="subtitle">Observation I</div>
+                    <h2>The Way You Exist</h2>
+                </div>
+                <div class="grid-appreciation">
+                    <div class="glass-card">
+                        <p>There is a specific kind of stillness you carry—a way of existing that makes the air feel a little lighter. You don't perform; you simply are. That simple presence is more grounding than you likely realize.</p>
+                    </div>
+                    <div class="glass-card">
+                        <p>I appreciate how you make space for complex thoughts without rushing to simplify them. In a world obsessed with quick answers, your willingness to just "be" with an idea is a rare and beautiful grace.</p>
+                    </div>
+                    <div class="glass-card">
+                        <p>Watching you handle the mundane feels like a masterclass in resilience. You don't demand applause, but you deserve it for the quiet ways you choose to be better every single day. The world is softer because you're in it.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="vault">
+                <div class="section-header">
+                    <div class="subtitle">Observation II</div>
+                    <h2>The Words I Never Said Loudly</h2>
+                </div>
+                <div class="vault-grid">
+                    
+                    <div class="poem-artifact">
+                        <div class="poem-meta">Poem 01 / Imaginations</div>
+                        <div class="poem-body">
+                            I want a poet for my heart...
+                            Someone carved from the same quiet storms as me...
+                            who hears metaphors in my silences,
+                            and still chooses to stay.
+
+                            I want someone gentle....
+                            gentle enough to pour their pulse into my palms,
+                            and still steady enough
+                            to gather every trembling piece of me
+                            without calling it "too much."
+
+                            A poet who reads me,
+                            and somehow,
+                            finally...
+                            understands the version of me
+                            I could never explain.
+                        </div>
+                        <div class="poem-sig">~Priyanshuuu</div>
+                    </div>
+
+                    <div class="poem-artifact">
+                        <div class="poem-meta">Poem 02 / Recognition</div>
+                        <div class="poem-body">
+                            I didn't find you,
+                            I recognized you...
+                            Like a soul that had been waiting
+                            across lifetimes, across universes,
+                            to finally breathe the same air as mine.
+
+                            Your eyes... they don't just look at me,
+                            they remember me.
+                            As if we were once the same heartbeat,
+                            split only so we could feel the pain of longing.
+                        </div>
+                        <div class="poem-sig">~Priyanshuuu</div>
+                    </div>
+
+                    <div class="poem-artifact">
+                        <div class="poem-meta">Poem 03 / Perspectives</div>
+                        <div class="poem-body">
+                            I don't admire the way you speak
+                            I admire where your thoughts run free..
+                            They don't arrive by common roads
+                            They drift, they dive, they gently know.
+
+                            Each sentence bends the shape of day
+                            Makes ordinary drift away.
+                            Your mind feels lived in, warm, awake,
+                            Not loud just deep, like chosen fate..
+
+                            If thoughts could glow, yours softly would,
+                            Not to impress just understood.
+                            And if listening were a place to stay,
+                            I'd live inside the words you say..
+                        </div>
+                        <div class="poem-sig">~Priyanshu</div>
+                    </div>
+
+                    <div class="poem-artifact quantum-poem" id="special-poem">
+                        <div class="poem-meta">Special Entry / Quantum Pulse</div>
+                        <div class="poem-body">
+                            It’s wild…
+                            how meeting you felt less like a coincidence
+                            and more like the multiverse finally correcting a glitch.
+
+                            You call us mirror galaxies
+                            Ofc we’re... We're like two anomalies
+                            that broke physics by existing on the same frequency somehow.
+
+                            Astral twins? Maybe..
+                            Because the way our thoughts sync
+                            feels like forbidden relativity
+                            time slows, space bends,
+                            and suddenly it makes sense...
+
+                            As if I'm talking to myself in the mirror 
+                            but with a better clarity of thoughts 
+                            and a better person than me myself.
+
+                            And if we’re building a soul constellation,
+                            then our ideas are dark matter...
+                            invisible, mysterious,
+                            yet holding meanings maybe not mine but ofc yours.
+
+                            Parallel stars? Yes....
+                            Two luminous singularities
+                            defying entropy just by choosing
+                            not to drift apart.
+
+                            So here’s my quantum pulse,
+                            travelling faster than a reason
+                            colliding with yours
+                            like it was always meant to.....
+                        </div>
+                        <div class="poem-sig">~Kalua Bandar🥀</div>
+                    </div>
+
+                </div>
+            </section>
+
+            <section id="future">
+                <div class="blessing-box">
+                    <div class="subtitle">Observation III</div>
+                    <h3>For The Girl Who Will Win In Life</h3>
+                    <p style="max-width: 600px; margin: 0 auto; line-height: 2; font-weight: 300;">
+                        May your path be clear of unnecessary obstacles, but rich with the lessons that make you even more formidable. I wish for you a life where your brilliance is never dimmed for the comfort of others. You have a fire that doesn't burn, it illuminates. 
+                        <br><br>
+                        Go and win every version of the future you've ever dreamt of. You are more than capable.
+                    </p>
+                </div>
+            </section>
+
+            <section id="exit" style="text-align:center;">
+                <p class="poem-meta" style="margin-bottom:2rem;">Conclusion</p>
+                <p style="font-family:'Playfair Display'; font-size: 1.5rem; font-style: italic; margin-bottom: 3rem;">"You don't owe me anything."</p>
+                <button class="gate-btn" style="color:var(--text-deep); border-color:var(--text-deep);" onclick="finishExperience()">CLOSE WITH A SMILE</button>
+            </section>
+        </div>
+    </div>
+
+    <!-- Final Curtain -->
+    <div id="curtain-final">
+        <div class="final-msg" id="msg1">
+            You don’t owe me anything.<br>
+            Not a relationship. Not a promise.<br>
+            Not even forever.
+        </div>
+        <div class="final-msg" id="msg2" style="margin-top:2rem; font-style: italic;">
+            I just wanted you to know<br>
+            that you are deeply appreciated.
+        </div>
+        <div class="final-msg" id="msg3" style="margin-top:4rem; font-size: 2.5rem; color: var(--accent);">
+            Stay happy, Ria.
+        </div>
+    </div>
+
+    <script>
+        // High-Fidelity Particle System
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const particleCount = 100;
+
+        function initParticles() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particles = [];
+            for(let i=0; i<particleCount; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    r: Math.random() * 2 + 0.5,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: (Math.random() - 0.5) * 0.4,
+                    o: Math.random() * 0.5 + 0.1
+                });
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if(p.x < 0) p.x = canvas.width;
+                if(p.x > canvas.width) p.x = 0;
+                if(p.y < 0) p.y = canvas.height;
+                if(p.y > canvas.height) p.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(248, 215, 218, ${p.o})`;
+                ctx.fill();
+            });
+            requestAnimationFrame(draw);
+        }
+
+        window.addEventListener('resize', initParticles);
+        initParticles();
+        draw();
+
+        // Site Interaction
+        function liftCurtain() {
+            const stage = document.getElementById('stage-intro');
+            const shell = document.getElementById('main-shell');
+            
+            stage.style.transform = 'translateY(-100%)';
+            shell.style.opacity = '1';
+            
+            // Interaction: if audio was requested, play it
+            const audio = document.getElementById('ambient');
+            if(audio.dataset.ready === "true") audio.play();
+        }
+
+        function toggleAudio() {
+            const audio = document.getElementById('ambient');
+            const status = document.getElementById('audio-status');
+            if(audio.paused) {
+                audio.play();
+                audio.dataset.ready = "true";
+                status.innerText = "AUDIO ON";
+            } else {
+                audio.pause();
+                status.innerText = "AUDIO OFF";
+            }
+        }
+
+        function finishExperience() {
+            const curtain = document.getElementById('curtain-final');
+            curtain.style.display = 'flex';
+            
+            const timeline = (id, delay) => {
+                setTimeout(() => {
+                    const el = document.getElementById(id);
+                    el.style.transition = 'all 2s ease';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, delay);
+            };
+
+            timeline('msg1', 500);
+            timeline('msg2', 3000);
+            timeline('msg3', 6000);
+        }
+
+        // Hidden "R" Interaction
+        window.addEventListener('keydown', (e) => {
+            if(e.key.toLowerCase() === 'r') {
+                const toast = document.createElement('div');
+                toast.style.cssText = `
+                    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+                    background: var(--paper); color: var(--text-deep); padding: 1rem 2rem;
+                    font-size: 0.8rem; letter-spacing: 0.2em; border: 1px solid var(--accent);
+                    z-index: 9999; animation: toastIn 3s forwards;
+                `;
+                toast.innerText = "THANK YOU FOR EXISTING";
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3500);
+            }
+        });
+
+        // Dynamic reveal on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    entry.target.style.transition = 'all 1.2s cubic-bezier(0.22, 1, 0.36, 1)';
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.15 });
+
+        document.querySelectorAll('.glass-card, .poem-artifact, .blessing-box').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(40px)';
+            observer.observe(el);
+        });
+
+    </script>
+    <style>
+        @keyframes toastIn {
+            0% { opacity: 0; transform: translate(-50%, 20px); }
+            20% { opacity: 1; transform: translate(-50%, 0); }
+            80% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
+        }
+    </style>
+</body>
+</html>
+
